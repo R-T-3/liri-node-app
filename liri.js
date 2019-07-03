@@ -3,23 +3,26 @@ require("dotenv").config();
 
 // Imports the keys.js file
 var keys = require("./key.js");
+var axios = require('axios');
+var moment = require('moment');
 
-// Access Spotify's keys
-var spotify = new Spotify(keys.spotify);
+// // Access Spotify's keys
+// var spotify = new Spotify(keys.spotify);
 
-// Access Bands in Town's keys
-var bandsInTown= new BandsInTown(keys.bandsInTown);
+// // Access Bands in Town's keys
+// var bandsInTown = new BandsInTown(keys.bandsInTown);
 
-// Access OMDB's keys
-var omdb = new Omdb(keys.omdb);
+// // Access OMDB's keys
+// var omdb = new Omdb(keys.omdb);
 
 var nodeArgs = process.argv;
+if (nodeArgs[2] === "concert-this"){
 
 var artist = "";
 
-for (var i = 2; i < nodeArgs.length; i++) {
+for (var i = 3; i < nodeArgs.length; i++) {
 
-    if (i > 2 && i < nodeArgs.length){
+    if (i > 3 && i < nodeArgs.length){
         artist = artist + "+" + nodeArgs[i];
     } else {
         artist += nodeArgs[i];
@@ -27,15 +30,13 @@ for (var i = 2; i < nodeArgs.length; i++) {
 }
 
 // Then run a request with axios to the Bands in Town API with the artist specified
-var queryUrl = "https://rest.bandsintown.com/artists/" + artist + "/events?app_id=codingbootcamp";
-
-// Debug against the actual URL.
-console.log(queryUrl);
+var queryUrl = "https://rest.bandsintown.com/artists/" + artist + "/events?app_id=codingbootcamp&date=upcoming";
 
 axios.get(queryUrl).then(
   function(response) {
-    console.log(response);
-  })
+    console.log("Name of Venue: " + response.data[0].venue.name);
+    console.log("Venue Location: " + response.data[0].venue.city + ", " + response.data[0].venue.country);
+    console.log("Date of Event: " + moment(response.data[0].datetime).format("MM/DD/YYYY"));  })
   .catch(function(error) {
     if (error.response) {
       // The request was made and the server responded with a status code
@@ -56,3 +57,4 @@ axios.get(queryUrl).then(
     }
     console.log(error.config);
   });
+};
